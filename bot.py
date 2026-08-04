@@ -17,6 +17,7 @@ def start(message):
         "🤖 Firebase Admin Bot\n\n"
         "/read - Read Full Firebase\n"
         "/devices - Random Device\n"
+        "/device DEVICE_ID - Read One Device\n"
         "/messages - Random Message"
     )
 
@@ -47,7 +48,35 @@ def devices(message):
         message,
         f"📱 Random Device\n\n"
         f"ID: {device}\n\n"
-        f"{data[device]}"
+        f"Use:\n/device {device}"
+    )
+
+
+@bot.message_handler(commands=['device'])
+def device(message):
+    args = message.text.split()
+
+    if len(args) != 2:
+        bot.reply_to(message, "Use:\n/device DEVICE_ID")
+        return
+
+    device_id = args[1]
+    data = read_data(device_id)
+
+    if not data:
+        bot.reply_to(message, "Device not found")
+        return
+
+    number = data.get("number", "Unknown")
+    model = data.get("model", "Unknown")
+
+    bot.reply_to(
+        message,
+        f"📱 Device Details\n\n"
+        f"🆔 ID: {device_id}\n"
+        f"📞 Number: {number}\n"
+        f"📱 Model: {model}\n\n"
+        f"{data}"
     )
 
 
