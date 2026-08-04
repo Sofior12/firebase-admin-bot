@@ -1,15 +1,14 @@
-import telebot
+import firebase_admin
+from firebase_admin import credentials, db
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-TOKEN = os.getenv("BOT_TOKEN")
-bot = telebot.TeleBot(TOKEN)
+cred = credentials.Certificate("serviceAccountKey.json")
+firebase_admin.initialize_app(cred, {
+    "databaseURL": os.getenv("FIREBASE_DB_URL")
+})
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, "🤖 Firebase Admin Bot Online!")
-
-print("Bot Started...")
-bot.infinity_polling()
+ref = db.reference("/")
+print(ref.get())
