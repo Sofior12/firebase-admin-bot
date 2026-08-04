@@ -1,8 +1,9 @@
-import telebot
+from dotenv import load_dotenv
+import os
 
-TOKEN = "तुम्हारा_BotFather_का_पूरा_टोकन"
+load_dotenv()
 
-bot = telebot.TeleBot(TOKEN)
+TOKEN = os.getenv("BOT_TOKEN")
 
 @bot.message_handler(commands=['start'])
 def start(message):
