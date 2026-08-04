@@ -33,13 +33,13 @@ def devices(message):
     data = read_data()
 
     if not data:
-        bot.reply_to(message, "No devices found")
+        bot.reply_to(message, "❌ No devices found")
         return
 
     keys = [k for k, v in data.items() if isinstance(v, dict)]
 
     if not keys:
-        bot.reply_to(message, "No devices found")
+        bot.reply_to(message, "❌ No devices found")
         return
 
     device = random.choice(keys)
@@ -47,7 +47,7 @@ def devices(message):
     bot.reply_to(
         message,
         f"📱 Random Device\n\n"
-        f"ID: {device}\n\n"
+        f"🆔 ID: {device}\n\n"
         f"Use:\n/device {device}"
     )
 
@@ -57,27 +57,43 @@ def device(message):
     args = message.text.split()
 
     if len(args) != 2:
-        bot.reply_to(message, "Use:\n/device DEVICE_ID")
+        bot.reply_to(message, "Usage:\n/device DEVICE_ID")
         return
 
     device_id = args[1]
+
+    # Agar devices alag node me hain to is line ko use karo:
+    # data = read_data(f"devices/{device_id}")
+
     data = read_data(device_id)
 
     if not data:
-        bot.reply_to(message, "Device not found")
+        bot.reply_to(message, "❌ Device not found")
         return
 
-    number = data.get("number", "Unknown")
-    model = data.get("model", "Unknown")
+    number = (
+        data.get("number")
+        or data.get("phoneNumber")
+        or data.get("phone")
+        or data.get("mobile")
+        or "Unknown"
+    )
 
-    bot.reply_to(
-        message,
+    model = data.get("model", "Unknown")
+    battery = data.get("battery", "Unknown")
+    version = data.get("version", "Unknown")
+
+    text = (
         f"📱 Device Details\n\n"
         f"🆔 ID: {device_id}\n"
         f"📞 Number: {number}\n"
-        f"📱 Model: {model}\n\n"
-        f"{data}"
+        f"📱 Model: {model}\n"
+        f"🔋 Battery: {battery}\n"
+        f"🤖 Version: {version}\n\n"
+        f"{str(data)[:3000]}"
     )
+
+    bot.reply_to(message, text)
 
 
 @bot.message_handler(commands=['messages'])
@@ -85,7 +101,7 @@ def messages(message):
     data = read_data("messages")
 
     if not data:
-        bot.reply_to(message, "No messages found")
+        bot.reply_to(message, "❌ No messages found")
         return
 
     keys = list(data.keys())
@@ -94,8 +110,8 @@ def messages(message):
     bot.reply_to(
         message,
         f"💬 Random Message\n\n"
-        f"ID: {msg}\n\n"
-        f"{data[msg]}"
+        f"🆔 ID: {msg}\n\n"
+        f"{str(data[msg])[:3500]}"
     )
 
 
