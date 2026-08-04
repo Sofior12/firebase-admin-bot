@@ -1,7 +1,6 @@
 import telebot
-import os
 
-TOKEN = os.getenv("8851484835:AAECy2HKwSOgsiCysQDgy6IeDkw3W3ppxvo")
+TOKEN = "तुम्हारा_BotFather_का_पूरा_टोकन"
 
 bot = telebot.TeleBot(TOKEN)
 
