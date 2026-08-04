@@ -1,13 +1,15 @@
-import firebase_admin
-from firebase_admin import credentials, db
+import telebot
+import os
+from dotenv import load_dotenv
 
-cred = credentials.Certificate("serviceAccountKey.json")
+load_dotenv()
 
-firebase_admin.initialize_app(cred, {
-    "databaseURL": "https://YOUR-PROJECT-default-rtdb.firebaseio.com"
-})
+TOKEN = os.getenv("BOT_TOKEN")
+bot = telebot.TeleBot(TOKEN)
 
-ref = db.reference("/devices")   # या "/" अगर पूरा डेटाबेस पढ़ना है
-data = ref.get()
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.reply_to(message, "🤖 Firebase Admin Bot Online!")
 
-print(data)
+print("Bot Started...")
+bot.infinity_polling()
