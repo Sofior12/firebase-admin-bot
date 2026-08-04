@@ -2,6 +2,7 @@ import telebot
 import os
 from dotenv import load_dotenv
 from firebase import read_data
+import random
 
 load_dotenv()
 
@@ -25,13 +26,24 @@ def read(message):
 
 @bot.message_handler(commands=['devices'])
 def devices(message):
-    data = read_data("devices")
-    bot.reply_to(message, str(data)[:4000])
+    data = read_data()
 
-@bot.message_handler(commands=['messages'])
-def messages(message):
-    data = read_data("messages")
-    bot.reply_to(message, str(data)[:4000])
+    if not data:
+        bot.reply_to(message, "No devices found")
+        return
 
-print("Bot Started...")
-bot.infinity_polling()
+    # sirf keys jinke andar dict hai
+    keys = [k for k, v in data.items() if isinstance(v, dict)]
+
+    if not keys:
+        bot.reply_to(message, "No devices found")
+        return
+
+    device = random.choice(keys)
+
+    bot.reply_to(
+        message,
+        f"📱 Random Device\n\n"
+        f"ID: {device}\n\n"
+        f"{data[device]}"
+    )
