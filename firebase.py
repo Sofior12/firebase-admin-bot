@@ -2,15 +2,23 @@ import requests
 
 FIREBASE_URL = "https://sacho1-default-rtdb.firebaseio.com"
 
-def read_data(path="/"):
+def read_data(path=""):
     url = f"{FIREBASE_URL}/{path}.json"
-    response = requests.get(url)
 
-    if response.status_code == 200:
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
         return response.json()
-    else:
+    except requests.exceptions.RequestException as e:
+        print(f"Error: {e}")
         return None
 
 if __name__ == "__main__":
+    # Root data
     data = read_data()
     print(data)
+
+    # Examples:
+    # print(read_data("All_Users"))
+    # print(read_data("All_Users/simDetails"))
+    # print(read_data("All_Users/Data/DeviceInfo"))
