@@ -4,25 +4,28 @@ markup = InlineKeyboardMarkup(row_width=2)
 
 markup.add(
     InlineKeyboardButton("📱 Device Info", callback_data="device_info"),
-    InlineKeyboardButton("🟢 Online", callback_data="online"),
+    InlineKeyboardButton("🟢 Online", callback_data="online")
 )
 
 markup.add(
-    InlineKeyboardButton("🔄 Refresh", callback_data="refresh"),
-    InlineKeyboardButton("⚙️ Settings", callback_data="settings"),
+    InlineKeyboardButton("🔋 Battery", callback_data="battery"),
+    InlineKeyboardButton("🔄 Refresh", callback_data="refresh")
 )
 
-bot.send_message(
-    message.chat.id,
-    f"""
-🎲 <b>Random Device Found</b>
+text = f"""
+🎲 <b>Random Device Found!</b>
 
 🆔 <b>Device ID:</b> {device_id}
 📞 <b>Number:</b> {number}
-📱 <b>Model:</b> {model}
-🔋 <b>Battery:</b> {battery}%
+📱 <b>Device Name:</b> {model}
 🟢 <b>Status:</b> {status}
-""",
+
+💡 <i>Select an action below.</i>
+"""
+
+bot.send_message(
+    message.chat.id,
+    text,
     parse_mode="HTML",
     reply_markup=markup
 )
