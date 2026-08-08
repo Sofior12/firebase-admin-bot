@@ -614,10 +614,8 @@ def update_data(message):
         return
     
     try:
-    _, path, value = message.text.split...
-    # Try to parse as JSON if star...
-    # (Your actual line 618 code might go here)
+    _, path, value = message.text.split() # Indented
+    # Rest of your logic...
 except Exception as e:
-    # This part is missing! Add it here.
-    print(f"Error processing command: {e}")
-    bot.reply_to(message, "❌ There was an error with your command.")
+    print(f"Error: {e}") # Unindented, goes after the try block ends
+    bot.reply_to(message, "Something went wrong.")
