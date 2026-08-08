@@ -50,6 +50,12 @@ except Exception as e:
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 bot = telebot.TeleBot(BOT_TOKEN)
 
+# 🔴 IMPORTANT: Replace this with your actual Telegram User ID (as a string)
+ADMIN_ID = "YOUR_TELEGRAM_USER_ID_HERE" 
+
+def is_admin(user_id):
+    return str(user_id) == ADMIN_ID
+
 # Firebase Helper Functions
 def firebase_get(path):
     """Get data from Firebase"""
@@ -609,13 +615,4 @@ def list_users(message):
     bot.reply_to(message, response, parse_mode='Markdown')
 
 @bot.message_handler(commands=['update'])
-def update_data(message):
-    if not is_admin(message.from_user.id):
-        return
-    
-    try:
-    _, path, value = message.text.split() # Indented
-    # Rest of your logic...
-except Exception as e:
-    print(f"Error: {e}") # Unindented, goes after the try block ends
-    bot.reply_to(message, "Something went wrong.")
+def updat
