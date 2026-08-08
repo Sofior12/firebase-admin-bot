@@ -613,7 +613,7 @@ def update_data(message):
     if not is_admin(message.from_user.id):
         return
     
-    ttry:
+    try:
     _, path, value = message.text.split...
     # Try to parse as JSON if star...
     # (Your actual line 618 code might go here)
