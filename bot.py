@@ -592,11 +592,14 @@ def update_data(message):
         print(f"Update Error: {e}")
         bot.reply_to(message, f"❌ Something went wrong: {e}")
 
-# ------------ RUN THE BOT ------------ 
-if __name__ == "__main__":
-    # Start Flask web server in a separate thread (for Render health checks)
-    threading.Thread(target=run_web).start()
+# ------------ INLINE BUTTONS HANDLERS ------------ 
+@bot.callback_query_handler(func=lambda call: True)
+def handle_query(call):
+    data = call.data
     
-    # Start the Telegram bot
-    print("🤖 Bot is starting...")
-    bot.infinity_polling()
+    # 1. Handle "Send Message" button
+    if data.startswith("send_"):
+        device_id = data.replace("send_", "")
+        bot.answer_callback_query(call.id, text=f"📤 Sending a message to device {device_id}...")
+        
+        #
