@@ -613,6 +613,11 @@ def update_data(message):
     if not is_admin(message.from_user.id):
         return
     
-    try:
-        _, path, value = message.text.split(' ', 2)
-        # Try to parse as JSON if star
+    ttry:
+    _, path, value = message.text.split...
+    # Try to parse as JSON if star...
+    # (Your actual line 618 code might go here)
+except Exception as e:
+    # This part is missing! Add it here.
+    print(f"Error processing command: {e}")
+    bot.reply_to(message, "❌ There was an error with your command.")
