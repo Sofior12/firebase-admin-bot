@@ -614,5 +614,25 @@ def list_users(message):
     
     bot.reply_to(message, response, parse_mode='Markdown')
 
-@bot.message_handler(commands=['update'])
-def updat
+
+@bot.message_handler(commands=['update'])  # ✅ Parentheses '()' lagana zaroori hai
+def update_data(message):                  # ✅ Function name bilkul sahi hai
+    if not is_admin(message.from_user.id):
+        bot.reply_to(message, "⛔ Unauthorized! Admin only.")
+        return
+    
+    try:
+        parts = message.text.split(' ', 2)
+        if len(parts) < 3:
+            raise ValueError("Not enough arguments")
+            
+        _, path, value = parts
+        update_data(path, value) # Ya aapka firebase update function
+        
+        bot.reply_to(message, f"✅ Successfully updated `{path}` to `{value}`", parse_mode='Markdown')
+        
+    except ValueError:
+        bot.reply_to(message, "❌ Usage: `/update path value`", parse_mode='Markdown')
+    except Exception as e:
+        print(f"Update Error: {e}")
+        bot.reply_to(message, f"❌ Something went wrong: {e}")
