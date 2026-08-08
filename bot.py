@@ -429,12 +429,11 @@ def handle_unknown(message):
 # =========================
 
 if __name__ == "__main__":
+    print("🚀 Starting Bot...")
     print("🤖 Firebase Bot V2 Started successfully!")
-    while True:
-        try:
-            bot.infinity_polling(timeout=30, long_polling_timeout=30)
-        except Exception as error:
-            print(f"⚠️ Bot error: {error}")
-            print("🔄 Restarting bot in 10 seconds...")
-            import time
-            time.sleep(10)
+    
+    try:
+        bot.infinity_polling(timeout=30, long_polling_timeout=30)
+    except Exception as error:
+        print(f"🛑 FATAL BOT ERROR: {error}")
+        print("⛔ Bot stopped due to error.")
