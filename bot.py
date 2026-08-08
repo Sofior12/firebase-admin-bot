@@ -29,22 +29,11 @@ def run_web():
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port)
 
-# Initialize Firebase
+# Initialize Firebase (Using REST API - NO JSON file required)
 FIREBASE_URL = os.getenv('FIREBASE_DATABASE_URL')
-USE_SDK = False
+USE_SDK = False  # Always use REST API to avoid file missing error
 
-try:
-    # Try using Firebase Admin SDK
-    cred = credentials.Certificate("firebase-credentials.json")
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': FIREBASE_URL
-    })
-    USE_SDK = True
-    print("✅ Firebase Admin SDK connected!")
-except Exception as e:
-    print(f"⚠️ Firebase SDK error: {e}")
-    print("🔄 Using Firebase REST API...")
-    USE_SDK = False
+print("🔄 Using Firebase REST API...")
 
 # Initialize bot
 BOT_TOKEN = os.getenv('BOT_TOKEN')
@@ -56,83 +45,48 @@ ADMIN_ID = "YOUR_TELEGRAM_USER_ID_HERE"
 def is_admin(user_id):
     return str(user_id) == ADMIN_ID
 
-# Firebase Helper Functions
+# Firebase Helper Functions (REST API only)
 def firebase_get(path):
     """Get data from Firebase"""
-    if USE_SDK:
-        try:
-            ref = db.reference(path)
-            return ref.get()
-        except Exception as e:
-            print(f"SDK Get Error: {e}")
-            return None
-    else:
-        try:
-            url = f"{FIREBASE_URL}/{path}.json"
-            response = requests.get(url)
-            if response.status_code == 200:
-                return response.json()
-            return None
-        except Exception as e:
-            print(f"REST Get Error: {e}")
-            return None
+    try:
+        url = f"{FIREBASE_URL}/{path}.json"
+        response = requests.get(url)
+        if response.status_code == 200:
+            return response.json()
+        return None
+    except Exception as e:
+        print(f"REST Get Error: {e}")
+        return None
 
 def firebase_set(path, data):
     """Set data in Firebase"""
-    if USE_SDK:
-        try:
-            ref = db.reference(path)
-            ref.set(data)
-            return True
-        except Exception as e:
-            print(f"SDK Set Error: {e}")
-            return False
-    else:
-        try:
-            url = f"{FIREBASE_URL}/{path}.json"
-            response = requests.put(url, json=data)
-            return response.status_code == 200
-        except Exception as e:
-            print(f"REST Set Error: {e}")
-            return False
+    try:
+        url = f"{FIREBASE_URL}/{path}.json"
+        response = requests.put(url, json=data)
+        return response.status_code == 200
+    except Exception as e:
+        print(f"REST Set Error: {e}")
+        return False
 
 def firebase_update(path, data):
     """Update data in Firebase"""
-    if USE_SDK:
-        try:
-            ref = db.reference(path)
-            ref.update(data)
-            return True
-        except Exception as e:
-            print(f"SDK Update Error: {e}")
-            return False
-    else:
-        try:
-            url = f"{FIREBASE_URL}/{path}.json"
-            response = requests.patch(url, json=data)
-            return response.status_code == 200
-        except Exception as e:
-            print(f"REST Update Error: {e}")
-            return False
+    try:
+        url = f"{FIREBASE_URL}/{path}.json"
+        response = requests.patch(url, json=data)
+        return response.status_code == 200
+    except Exception as e:
+        print(f"REST Update Error: {e}")
+        return False
 
 def firebase_delete(path):
     """Delete data from Firebase"""
-    if USE_SDK:
-        try:
-            ref = db.reference(path)
-            ref.delete()
-            return True
-        except Exception as e:
-            print(f"SDK Delete Error: {e}")
-            return False
-    else:
-        try:
-            url = f"{FIREBASE_URL}/{path}.json"
-            response = requests.delete(url)
-            return response.status_code == 200
-        except Exception as e:
-            print(f"REST Delete Error: {e}")
-            return False
+    try:
+        url = f"{FIREBASE_URL}/{path}.json"
+        response = requests.delete(url)
+        return response.status_code == 200
+    except Exception as e:
+        print(f"REST Delete Error: {e}")
+        return False
 
 # Generate random data
 def generate_device_id():
@@ -614,9 +568,8 @@ def list_users(message):
     
     bot.reply_to(message, response, parse_mode='Markdown')
 
-
-@bot.message_handler(commands=['update'])  # ✅ Parentheses '()' lagana zaroori hai
-def update_data(message):                  # ✅ Function name bilkul sahi hai
+@bot.message_handler(commands=['update'])  
+def update_data(message):                  
     if not is_admin(message.from_user.id):
         bot.reply_to(message, "⛔ Unauthorized! Admin only.")
         return
@@ -627,12 +580,23 @@ def update_data(message):                  # ✅ Function name bilkul sahi hai
             raise ValueError("Not enough arguments")
             
         _, path, value = parts
-        update_data(path, value) # Ya aapka firebase update function
+        
+        # ✅ FIXED: Call the Firebase function, NOT itself
+        firebase_update(path, value) 
         
         bot.reply_to(message, f"✅ Successfully updated `{path}` to `{value}`", parse_mode='Markdown')
         
     except ValueError:
-        bot.reply_to(message, "❌ Usage: `/update path value`", parse_mode='Markdown')
+        bot.reply_to(message, "❌ Usage: `/update path value`\n\nExample: `/update users/123/status active`", parse_mode='Markdown')
     except Exception as e:
         print(f"Update Error: {e}")
         bot.reply_to(message, f"❌ Something went wrong: {e}")
+
+# ------------ RUN THE BOT ------------ 
+if __name__ == "__main__":
+    # Start Flask web server in a separate thread (for Render health checks)
+    threading.Thread(target=run_web).start()
+    
+    # Start the Telegram bot
+    print("🤖 Bot is starting...")
+    bot.infinity_polling()
