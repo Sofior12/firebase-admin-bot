@@ -3,5 +3,5 @@ services:
   name: firebase-admin-bot
   env: python
   buildCommand: "pip install -r requirements.txt"
-  startCommand: "python bot.py"
+  startCommand: "gunicorn bot:app"
   autoDeploy: true
